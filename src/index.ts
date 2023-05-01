@@ -1,38 +1,29 @@
 import type { APIGatewayEvent, APIGatewayProxyEvent, APIGatewayProxyHandler } from 'aws-lambda';
 import * as dotenv from 'dotenv'
-import { uploadFileToS3 } from './helpers';
+import { deleteS3File } from './helpers';
 import type { CsvFile } from './types';
 dotenv.config();
 
-const headers = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'Content-Type',
-  'Access-Control-Allow-Methods': 'OPTIONS,POST,GET'
-};
-
 export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEvent) => {
   try {
-    const csvFileToUpload = event.body as CsvFile;
+    const csvFileToUpload: CsvFile | undefined = event.pathParameters?.name;
 
     if (!csvFileToUpload?.length) {
       return {
         statusCode: 400,
-        headers,
-        body: "Empty or non existent file"
+        body: "Empty or non existent file name"
       }
     }
 
-    await uploadFileToS3(csvFileToUpload);
+    await deleteS3File(csvFileToUpload);
     return {
       statusCode: 200,
-      headers,
-      body: "File uploaded successfully"
+      body: "File deleted successfully"
     }
   }
   catch (error) {
     return {
       statusCode: 500,
-      headers,
       body: `Unexpected Error Happened: ${error}`
     }
   }

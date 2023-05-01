@@ -1,4 +1,4 @@
-import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
+import { S3Client, DeleteObjectCommand } from "@aws-sdk/client-s3";
 import * as dotenv from 'dotenv'
 import type { CsvFile } from "./types";
 dotenv.config();
@@ -11,15 +11,10 @@ const client = new S3Client({
   }
 });
 
-export async function uploadFileToS3(data: CsvFile) {
-  const filename = data.match(/filename="([^"]+)"/i)![1];
-  const fixedData = data.split('\n').slice(4).join('\n');
-
-  const command = new PutObjectCommand({
+export async function deleteS3File(file: CsvFile) {
+  const command = new DeleteObjectCommand({
     Bucket: process.env.BUCKET_NAME,
-    Body: fixedData,
-    Key: filename,
-    ContentType: "text/csv"
+    Key: file
   })
 
   return await client.send(command)
