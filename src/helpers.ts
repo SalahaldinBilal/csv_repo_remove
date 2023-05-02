@@ -19,3 +19,14 @@ export async function deleteS3File(file: CsvFile) {
 
   return await client.send(command)
 }
+
+export function response(statusCode: number, body: any, extraHeaders: { [key: string]: string } = {}) {
+  return {
+    statusCode,
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      ...extraHeaders
+    },
+    body
+  }
+}
